@@ -3,7 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const { startStreamingScrape, getLiveJobs } = require('./isilanlari');
 const app = express();
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('chrome-aws-lambda');
 app.use(cors());
  
 
@@ -25,10 +26,14 @@ app.get('/api/ybs-ilanlar/live', (req, res) => {
 
 
 app.get('/ders-programi', async (req, res) => {
-  const browser = await puppeteer.launch({ headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  
   const page = await browser.newPage();
-
+  const browser = await chromium.puppeteer.launch({
+  args: chromium.args,
+  defaultViewport: chromium.defaultViewport,
+  executablePath: await chromium.executablePath,
+  headless: chromium.headless,
+});
   try {
     await page.goto('https://iibf.deu.edu.tr/wp-courselist.php', {
       waitUntil: 'networkidle2',
